@@ -1,5 +1,5 @@
-import React, { useReducer, useEffect, useCallback, useMemo } from ‘react’;
-import { Flame, Leaf, Gem, Zap, Star, Heart, Clock, Sparkles, Map, Hammer, Settings, Code } from ‘lucide-react’;
+import React, { useReducer, useEffect, useCallback, useMemo } from 'react';
+import { Flame, Leaf, Gem, Zap, Star, Heart, Clock, Sparkles, Map, Hammer, Settings, Code } from 'lucide-react';
 
 // ===== CONSTANTS (Ready for extraction) =====
 const GAME_CONFIG = {
@@ -23,246 +23,246 @@ petCooldown: 60000
 }
 };
 
-const RARITY_ORDER = [‘legendary’, ‘epic’, ‘rare’, ‘uncommon’, ‘common’];
+const RARITY_ORDER = ['legendary', 'epic', 'rare', 'uncommon', 'common'];
 const RESOURCE_ICONS = {
-emberShard: ‘🔥’,
-whisperingVine: ‘🌿’,
-dustleaf: ‘🍃’,
-ancientAlloy: ‘⚡’
+emberShard: '🔥',
+whisperingVine: '🌿',
+dustleaf: '🍃',
+ancientAlloy: '⚡'
 };
 
 // Item Definitions
 const ITEMS = {
 // COMMON - Basic materials and components
-ashPowder: { name: “Ash Powder”, rarity: “common”, description: “Fine ash from burned embers”, restoration: 3, theme: “ember”, type: “material” },
-driedVine: { name: “Dried Vine”, rarity: “common”, description: “Withered but still magical vines”, restoration: 3, theme: “forest”, type: “material” },
-emberDust: { name: “Ember Dust”, rarity: “common”, description: “Glowing dust that sparkles faintly”, restoration: 4, theme: “ember”, type: “material” },
-voidShard: { name: “Void Shard”, rarity: “common”, description: “Small fragments of dark energy”, restoration: 3, theme: “void”, type: “material” },
-ironFilings: { name: “Iron Filings”, rarity: “common”, description: “Metal shavings with traces of magic”, restoration: 3, theme: “forge”, type: “material” },
+ashPowder: { name: "Ash Powder", rarity: "common", description: "Fine ash from burned embers", restoration: 3, theme: "ember", type: "material" },
+driedVine: { name: "Dried Vine", rarity: "common", description: "Withered but still magical vines", restoration: 3, theme: "forest", type: "material" },
+emberDust: { name: "Ember Dust", rarity: "common", description: "Glowing dust that sparkles faintly", restoration: 4, theme: "ember", type: "material" },
+voidShard: { name: "Void Shard", rarity: "common", description: "Small fragments of dark energy", restoration: 3, theme: "void", type: "material" },
+ironFilings: { name: "Iron Filings", rarity: "common", description: "Metal shavings with traces of magic", restoration: 3, theme: "forge", type: "material" },
 
 // UNCOMMON - Refined materials
-soulcord: { name: “Soulcord”, rarity: “uncommon”, description: “Mystical cord that binds spirit to matter”, restoration: 8, theme: “forest”, type: “material” },
-ironShard: { name: “Iron Shard”, rarity: “uncommon”, description: “Refined metal with magical properties”, restoration: 8, theme: “forge”, type: “material” },
-emberCrystal: { name: “Ember Crystal”, rarity: “uncommon”, description: “Crystallized fire energy”, restoration: 9, theme: “ember”, type: “material” },
-shadowEssence: { name: “Shadow Essence”, rarity: “uncommon”, description: “Concentrated darkness in liquid form”, restoration: 8, theme: “void”, type: “material” },
-livingWood: { name: “Living Wood”, rarity: “uncommon”, description: “Wood that still pulses with life”, restoration: 9, theme: “forest”, type: “material” },
+soulcord: { name: "Soulcord", rarity: "uncommon", description: "Mystical cord that binds spirit to matter", restoration: 8, theme: "forest", type: "material" },
+ironShard: { name: "Iron Shard", rarity: "uncommon", description: "Refined metal with magical properties", restoration: 8, theme: "forge", type: "material" },
+emberCrystal: { name: "Ember Crystal", rarity: "uncommon", description: "Crystallized fire energy", restoration: 9, theme: "ember", type: "material" },
+shadowEssence: { name: "Shadow Essence", rarity: "uncommon", description: "Concentrated darkness in liquid form", restoration: 8, theme: "void", type: "material" },
+livingWood: { name: "Living Wood", rarity: "uncommon", description: "Wood that still pulses with life", restoration: 9, theme: "forest", type: "material" },
 
 // RARE - Specialized items and basic tools
-fireglass: { name: “Fireglass”, rarity: “rare”, description: “Molten glass infused with ember energy”, restoration: 15, theme: “ember”, type: “material” },
-mysticEssence: { name: “Mystic Essence”, rarity: “rare”, description: “Pure magical energy in crystalline form”, restoration: 18, theme: “forest”, type: “material” },
-voidMetal: { name: “Void Metal”, rarity: “rare”, description: “Metal forged in the darkness between stars”, restoration: 16, theme: “void”, type: “material” },
-restorationHammer: { name: “Restoration Hammer”, rarity: “rare”, description: “A tool that can rebuild anything”, restoration: 20, theme: “forge”, type: “tool” },
-spiritLens: { name: “Spirit Lens”, rarity: “rare”, description: “Focuses magical energy into precise beams”, restoration: 18, theme: “forge”, type: “tool” },
+fireglass: { name: "Fireglass", rarity: "rare", description: "Molten glass infused with ember energy", restoration: 15, theme: "ember", type: "material" },
+mysticEssence: { name: "Mystic Essence", rarity: "rare", description: "Pure magical energy in crystalline form", restoration: 18, theme: "forest", type: "material" },
+voidMetal: { name: "Void Metal", rarity: "rare", description: "Metal forged in the darkness between stars", restoration: 16, theme: "void", type: "material" },
+restorationHammer: { name: "Restoration Hammer", rarity: "rare", description: "A tool that can rebuild anything", restoration: 20, theme: "forge", type: "tool" },
+spiritLens: { name: "Spirit Lens", rarity: "rare", description: "Focuses magical energy into precise beams", restoration: 18, theme: "forge", type: "tool" },
 
 // EPIC - Powerful tools and artifacts
-phoenixFeather: { name: “Phoenix Feather”, rarity: “epic”, description: “A feather that burns without being consumed”, restoration: 35, theme: “ember”, type: “material” },
-voidCrystal: { name: “Void Crystal”, rarity: “epic”, description: “A crystal that seems to absorb light itself”, restoration: 30, theme: “void”, type: “material” },
-lifeSeed: { name: “Life Seed”, rarity: “epic”, description: “Contains the essence of an entire forest”, restoration: 40, theme: “forest”, type: “material” },
-masterworkGear: { name: “Masterwork Gear”, rarity: “epic”, description: “Perfectly crafted mechanical component”, restoration: 32, theme: “forge”, type: “component” },
-astralCompass: { name: “Astral Compass”, rarity: “epic”, description: “Points toward sources of magical energy”, restoration: 35, theme: “void”, type: “tool” },
+phoenixFeather: { name: "Phoenix Feather", rarity: "epic", description: "A feather that burns without being consumed", restoration: 35, theme: "ember", type: "material" },
+voidCrystal: { name: "Void Crystal", rarity: "epic", description: "A crystal that seems to absorb light itself", restoration: 30, theme: "void", type: "material" },
+lifeSeed: { name: "Life Seed", rarity: "epic", description: "Contains the essence of an entire forest", restoration: 40, theme: "forest", type: "material" },
+masterworkGear: { name: "Masterwork Gear", rarity: "epic", description: "Perfectly crafted mechanical component", restoration: 32, theme: "forge", type: "component" },
+astralCompass: { name: "Astral Compass", rarity: "epic", description: "Points toward sources of magical energy", restoration: 35, theme: "void", type: "tool" },
 
 // LEGENDARY - World-changing artifacts
-phoenixCore: { name: “Phoenix Core”, rarity: “legendary”, description: “The beating heart of a phoenix, pulsing with life”, restoration: 75, theme: “ember”, type: “material” },
-ancientRelic: { name: “Ancient Relic”, rarity: “legendary”, description: “An artifact from the world before the calamity”, restoration: 60, theme: “forge”, type: “material” },
-worldSeed: { name: “World Seed”, rarity: “legendary”, description: “Can birth entire ecosystems”, restoration: 90, theme: “forest”, type: “material” },
-voidHeart: { name: “Void Heart”, rarity: “legendary”, description: “The core of a collapsed star”, restoration: 70, theme: “void”, type: “material” },
-creatorsHammer: { name: “Creator’s Hammer”, rarity: “legendary”, description: “Used by the gods to forge the world”, restoration: 100, theme: “forge”, type: “tool” },
+phoenixCore: { name: "Phoenix Core", rarity: "legendary", description: "The beating heart of a phoenix, pulsing with life", restoration: 75, theme: "ember", type: "material" },
+ancientRelic: { name: "Ancient Relic", rarity: "legendary", description: "An artifact from the world before the calamity", restoration: 60, theme: "forge", type: "material" },
+worldSeed: { name: "World Seed", rarity: "legendary", description: "Can birth entire ecosystems", restoration: 90, theme: "forest", type: "material" },
+voidHeart: { name: "Void Heart", rarity: "legendary", description: "The core of a collapsed star", restoration: 70, theme: "void", type: "material" },
+creatorsHammer: { name: "Creator's Hammer", rarity: "legendary", description: "Used by the gods to forge the world", restoration: 100, theme: "forge", type: "tool" },
 
 // ADVANCED TOOLS & COMPONENTS
-advancedRestorationKit: { name: “Advanced Restoration Kit”, rarity: “epic”, description: “Professional-grade rebuilding equipment”, restoration: 0, theme: “forge”, type: “component” },
-enchantedLens: { name: “Enchanted Lens”, rarity: “epic”, description: “Magnifies magical energy precisely”, restoration: 0, theme: “forge”, type: “component” },
-buildersFocus: { name: “Builder’s Focus”, rarity: “rare”, description: “Enhances construction abilities”, restoration: 0, theme: “forest”, type: “component” },
-voidEngine: { name: “Void Engine”, rarity: “legendary”, description: “Harnesses dark energy for construction”, restoration: 0, theme: “void”, type: “component” },
-magicAmplifier: { name: “Magic Amplifier”, rarity: “epic”, description: “Boosts all magical effects in an area”, restoration: 0, theme: “ember”, type: “component” },
-terraformingDevice: { name: “Terraforming Device”, rarity: “legendary”, description: “Can reshape entire landscapes”, restoration: 0, theme: “forge”, type: “component” }
+advancedRestorationKit: { name: "Advanced Restoration Kit", rarity: "epic", description: "Professional-grade rebuilding equipment", restoration: 0, theme: "forge", type: "component" },
+enchantedLens: { name: "Enchanted Lens", rarity: "epic", description: "Magnifies magical energy precisely", restoration: 0, theme: "forge", type: "component" },
+buildersFocus: { name: "Builder's Focus", rarity: "rare", description: "Enhances construction abilities", restoration: 0, theme: "forest", type: "component" },
+voidEngine: { name: "Void Engine", rarity: "legendary", description: "Harnesses dark energy for construction", restoration: 0, theme: "void", type: "component" },
+magicAmplifier: { name: "Magic Amplifier", rarity: "epic", description: "Boosts all magical effects in an area", restoration: 0, theme: "ember", type: "component" },
+terraformingDevice: { name: "Terraforming Device", rarity: "legendary", description: "Can reshape entire landscapes", restoration: 0, theme: "forge", type: "component" }
 };
 
 // Advanced Recipes
 const ADVANCED_RECIPES = {
 advancedRestorationKit: {
-name: “Advanced Restoration Kit”,
-icon: “🛠️”,
+name: "Advanced Restoration Kit",
+icon: "🛠️",
 inputs: { restorationHammer: 1, ironShard: 3, mysticEssence: 1 },
 experience: 50,
-description: “Combine tools and materials for advanced construction”,
-output: ‘advancedRestorationKit’
+description: "Combine tools and materials for advanced construction",
+output: 'advancedRestorationKit'
 },
 enchantedLens: {
-name: “Enchanted Lens”,
-icon: “🔍”,
+name: "Enchanted Lens",
+icon: "🔍",
 inputs: { spiritLens: 1, fireglass: 2, emberCrystal: 2 },
 experience: 45,
-description: “Merge optics with magical energy”,
-output: ‘enchantedLens’
+description: "Merge optics with magical energy",
+output: 'enchantedLens'
 },
 buildersFocus: {
-name: “Builder’s Focus”,
-icon: “🌿”,
+name: "Builder's Focus",
+icon: "🌿",
 inputs: { livingWood: 2, soulcord: 3, mysticEssence: 1 },
 experience: 40,
-description: “Enhance natural building capabilities”,
-output: ‘buildersFocus’
+description: "Enhance natural building capabilities",
+output: 'buildersFocus'
 },
 voidEngine: {
-name: “Void Engine”,
-icon: “⚫”,
+name: "Void Engine",
+icon: "⚫",
 inputs: { voidCrystal: 1, voidMetal: 2, shadowEssence: 3, ancientRelic: 1 },
 experience: 80,
-description: “Harness the power of the void for construction”,
-output: ‘voidEngine’
+description: "Harness the power of the void for construction",
+output: 'voidEngine'
 },
 magicAmplifier: {
-name: “Magic Amplifier”,
-icon: “🔆”,
+name: "Magic Amplifier",
+icon: "🔆",
 inputs: { phoenixFeather: 1, spiritLens: 1, emberCrystal: 3, mysticEssence: 2 },
 experience: 70,
-description: “Amplify magical energies across vast areas”,
-output: ‘magicAmplifier’
+description: "Amplify magical energies across vast areas",
+output: 'magicAmplifier'
 },
 terraformingDevice: {
-name: “Terraforming Device”,
-icon: “🌍”,
+name: "Terraforming Device",
+icon: "🌍",
 inputs: { creatorsHammer: 1, worldSeed: 1, voidHeart: 1, masterworkGear: 2 },
 experience: 150,
-description: “Reshape the very fabric of reality”,
-output: ‘terraformingDevice’
+description: "Reshape the very fabric of reality",
+output: 'terraformingDevice'
 }
 };
 
 // Zone Projects
 const ZONE_PROJECTS = {
 roadNetwork: {
-name: “Road Network”,
-icon: “🛣️”,
+name: "Road Network",
+icon: "🛣️",
 inputs: { advancedRestorationKit: 1, buildersFocus: 1 },
-description: “Efficient transportation increases resource flow”,
-effect: “Resource generation +50%”,
+description: "Efficient transportation increases resource flow",
+effect: "Resource generation +50%",
 bonus: { resourceMultiplier: 1.5 }
 },
 defensiveWalls: {
-name: “Defensive Walls”,
-icon: “🏰”,
+name: "Defensive Walls",
+icon: "🏰",
 inputs: { voidEngine: 1, advancedRestorationKit: 1 },
-description: “Fortifications allow safer expansion”,
-effect: “Unlock zones 25% faster”,
+description: "Fortifications allow safer expansion",
+effect: "Unlock zones 25% faster",
 bonus: { unlockSpeedBonus: 0.25 }
 },
 magicGarden: {
-name: “Magic Garden”,
-icon: “🌺”,
+name: "Magic Garden",
+icon: "🌺",
 inputs: { enchantedLens: 1, buildersFocus: 2 },
-description: “Cultivated magic enhances fortune”,
-effect: “Base luck +10”,
+description: "Cultivated magic enhances fortune",
+effect: "Base luck +10",
 bonus: { luckBonus: 10 }
 },
 arcaneWorkshop: {
-name: “Arcane Workshop”,
-icon: “🔮”,
+name: "Arcane Workshop",
+icon: "🔮",
 inputs: { magicAmplifier: 1, enchantedLens: 1, masterworkGear: 1 },
-description: “Advanced facilities improve crafting”,
-effect: “Crafting speed +30%”,
+description: "Advanced facilities improve crafting",
+effect: "Crafting speed +30%",
 bonus: { craftingSpeedBonus: 0.3 }
 },
 voidGate: {
-name: “Void Gate”,
-icon: “🌀”,
+name: "Void Gate",
+icon: "🌀",
 inputs: { voidEngine: 1, terraformingDevice: 1 },
-description: “Portal to untapped realms”,
-effect: “Unlock Void Realm zone”,
-bonus: { unlockZone: ‘voidRealm’ }
+description: "Portal to untapped realms",
+effect: "Unlock Void Realm zone",
+bonus: { unlockZone: 'voidRealm' }
 },
 worldTree: {
-name: “World Tree”,
-icon: “🌳”,
+name: "World Tree",
+icon: "🌳",
 inputs: { terraformingDevice: 1, magicAmplifier: 1, buildersFocus: 3 },
-description: “The heart of a new ecosystem”,
-effect: “All bonuses +25%”,
+description: "The heart of a new ecosystem",
+effect: "All bonuses +25%",
 bonus: { allBonusMultiplier: 1.25 }
 }
 };
 
 const RECIPES = {
 forestInfusion: {
-name: “Forest Infusion”,
-icon: “🌿”,
+name: "Forest Infusion",
+icon: "🌿",
 inputs: { whisperingVine: 3, emberShard: 2 },
 experience: 15,
-description: “Blend nature’s essence with ember energy”,
+description: "Blend nature's essence with ember energy",
 outputs: {
 common: [
-{ item: ‘driedVine’, baseChance: 30 },
-{ item: ‘ashPowder’, baseChance: 25 }
+{ item: 'driedVine', baseChance: 30 },
+{ item: 'ashPowder', baseChance: 25 }
 ],
 uncommon: [
-{ item: ‘soulcord’, baseChance: 20 },
-{ item: ‘livingWood’, baseChance: 15 }
+{ item: 'soulcord', baseChance: 20 },
+{ item: 'livingWood', baseChance: 15 }
 ],
 rare: [
-{ item: ‘mysticEssence’, baseChance: 8 },
-{ item: ‘spiritLens’, baseChance: 5 }
+{ item: 'mysticEssence', baseChance: 8 },
+{ item: 'spiritLens', baseChance: 5 }
 ],
 epic: [
-{ item: ‘lifeSeed’, baseChance: 4 }
+{ item: 'lifeSeed', baseChance: 4 }
 ],
 legendary: [
-{ item: ‘worldSeed’, baseChance: 2 }
+{ item: 'worldSeed', baseChance: 2 }
 ]
 }
 },
 emberForge: {
-name: “Ember Forge”,
-icon: “⚒️”,
+name: "Ember Forge",
+icon: "⚒️",
 inputs: { emberShard: 4, dustleaf: 2, ancientAlloy: 1 },
 experience: 25,
-description: “Forge materials in the heat of ancient flames”,
+description: "Forge materials in the heat of ancient flames",
 outputs: {
 common: [
-{ item: ‘emberDust’, baseChance: 25 },
-{ item: ‘ironFilings’, baseChance: 25 }
+{ item: 'emberDust', baseChance: 25 },
+{ item: 'ironFilings', baseChance: 25 }
 ],
 uncommon: [
-{ item: ‘ironShard’, baseChance: 20 },
-{ item: ‘emberCrystal’, baseChance: 15 }
+{ item: 'ironShard', baseChance: 20 },
+{ item: 'emberCrystal', baseChance: 15 }
 ],
 rare: [
-{ item: ‘fireglass’, baseChance: 10 },
-{ item: ‘restorationHammer’, baseChance: 8 }
+{ item: 'fireglass', baseChance: 10 },
+{ item: 'restorationHammer', baseChance: 8 }
 ],
 epic: [
-{ item: ‘phoenixFeather’, baseChance: 5 },
-{ item: ‘masterworkGear’, baseChance: 3 }
+{ item: 'phoenixFeather', baseChance: 5 },
+{ item: 'masterworkGear', baseChance: 3 }
 ],
 legendary: [
-{ item: ‘phoenixCore’, baseChance: 2 },
-{ item: ‘creatorsHammer’, baseChance: 1 }
+{ item: 'phoenixCore', baseChance: 2 },
+{ item: 'creatorsHammer', baseChance: 1 }
 ]
 }
 },
 voidRitual: {
-name: “Void Ritual”,
-icon: “🌑”,
+name: "Void Ritual",
+icon: "🌑",
 inputs: { whisperingVine: 5, dustleaf: 4, ancientAlloy: 2 },
 experience: 40,
-description: “Channel the darkness between worlds”,
+description: "Channel the darkness between worlds",
 outputs: {
 common: [
-{ item: ‘voidShard’, baseChance: 30 }
+{ item: 'voidShard', baseChance: 30 }
 ],
 uncommon: [
-{ item: ‘shadowEssence’, baseChance: 25 },
-{ item: ‘soulcord’, baseChance: 15 }
+{ item: 'shadowEssence', baseChance: 25 },
+{ item: 'soulcord', baseChance: 15 }
 ],
 rare: [
-{ item: ‘voidMetal’, baseChance: 15 },
-{ item: ‘mysticEssence’, baseChance: 8 }
+{ item: 'voidMetal', baseChance: 15 },
+{ item: 'mysticEssence', baseChance: 8 }
 ],
 epic: [
-{ item: ‘voidCrystal’, baseChance: 12 },
-{ item: ‘astralCompass’, baseChance: 8 }
+{ item: 'voidCrystal', baseChance: 12 },
+{ item: 'astralCompass', baseChance: 8 }
 ],
 legendary: [
-{ item: ‘voidHeart’, baseChance: 3 },
-{ item: ‘ancientRelic’, baseChance: 2 }
+{ item: 'voidHeart', baseChance: 3 },
+{ item: 'ancientRelic', baseChance: 2 }
 ]
 }
 }
@@ -273,35 +273,35 @@ const formatNumber = (num) => Math.floor(num * 10) / 10;
 
 const getRarityColor = (rarity) => {
 const colors = {
-common: ‘text-gray-300’,
-uncommon: ‘text-green-400’,
-rare: ‘text-blue-400’,
-epic: ‘text-purple-400’,
-legendary: ‘text-amber-400’
+common: 'text-gray-300',
+uncommon: 'text-green-400',
+rare: 'text-blue-400',
+epic: 'text-purple-400',
+legendary: 'text-amber-400'
 };
-return colors[rarity] || ‘text-gray-400’;
+return colors[rarity] || 'text-gray-400';
 };
 
 const getRarityBg = (rarity) => {
 const backgrounds = {
-common: ‘bg-gray-500/10 border-gray-500/30’,
-uncommon: ‘bg-green-500/15 border-green-500/40’,
-rare: ‘bg-blue-500/15 border-blue-500/40’,
-epic: ‘bg-purple-500/15 border-purple-500/40’,
-legendary: ‘bg-amber-500/15 border-amber-500/40 shadow-lg’
+common: 'bg-gray-500/10 border-gray-500/30',
+uncommon: 'bg-green-500/15 border-green-500/40',
+rare: 'bg-blue-500/15 border-blue-500/40',
+epic: 'bg-purple-500/15 border-purple-500/40',
+legendary: 'bg-amber-500/15 border-amber-500/40 shadow-lg'
 };
-return backgrounds[rarity] || ‘bg-gray-500/10 border-gray-500/20’;
+return backgrounds[rarity] || 'bg-gray-500/10 border-gray-500/20';
 };
 
 const getRarityGem = (rarity) => {
 const gems = {
-common: ‘💎’,
-uncommon: ‘🟢’,
-rare: ‘🔷’,
-epic: ‘🟣’,
-legendary: ‘⭐’
+common: '💎',
+uncommon: '🟢',
+rare: '🔷',
+epic: '🟣',
+legendary: '⭐'
 };
-return gems[rarity] || ‘💎’;
+return gems[rarity] || '💎';
 };
 
 const rollForItem = (recipe, luck) => {
@@ -324,7 +324,6 @@ const possibleItems = recipe.outputs[rarity];
 const totalItemChance = possibleItems.reduce((sum, item) => sum + item.baseChance, 0);
 let itemRoll = Math.random() * totalItemChance;
 
-```
   for (const itemData of possibleItems) {
     itemRoll -= itemData.baseChance;
     if (itemRoll <= 0) {
@@ -333,7 +332,6 @@ let itemRoll = Math.random() * totalItemChance;
   }
   return possibleItems[0].item;
 }
-```
 
 }
 return recipe.outputs[Object.keys(recipe.outputs)[0]][0].item;
@@ -349,7 +347,7 @@ resources[resource] >= amount * quantity
 const getMaxCrafts = (resources, recipeKey) => {
 const recipe = RECIPES[recipeKey];
 return Math.floor(Math.min(
-…Object.entries(recipe.inputs).map(([resource, amount]) =>
+...Object.entries(recipe.inputs).map(([resource, amount]) =>
 Math.floor(resources[resource] / amount)
 )
 ));
@@ -377,7 +375,7 @@ whisperingVine: 25,
 dustleaf: 28,
 ancientAlloy: 12
 },
-inventory: Object.keys(ITEMS).reduce((acc, key) => ({ …acc, [key]: 0 }), {}),
+inventory: Object.keys(ITEMS).reduce((acc, key) => ({ ...acc, [key]: 0 }), {}),
 player: {
 level: 1,
 experience: 0,
@@ -386,56 +384,56 @@ luck: 50,
 baseLuck: 50
 },
 companion: {
-name: “Spark”,
+name: "Spark",
 mood: 85,
 level: 1,
 petCooldown: 0
 },
 zones: {
 cinderGrove: {
-name: “Cinder Grove”,
+name: "Cinder Grove",
 restored: 0,
 maxRestored: 100,
 unlocked: true,
-description: “A charred forest slowly coming back to life”,
+description: "A charred forest slowly coming back to life",
 projects: [],
 bonuses: { resourceMultiplier: 1.0 }
 },
 skyfallPlateau: {
-name: “Skyfall Plateau”,
+name: "Skyfall Plateau",
 restored: 0,
 maxRestored: 150,
 unlocked: false,
-description: “Ancient ruins reaching toward the sky”,
+description: "Ancient ruins reaching toward the sky",
 projects: [],
 bonuses: { resourceMultiplier: 1.0 }
 },
 voidRealm: {
-name: “Void Realm”,
+name: "Void Realm",
 restored: 0,
 maxRestored: 200,
 unlocked: false,
-description: “A dimension touched by dark energy”,
+description: "A dimension touched by dark energy",
 projects: [],
 bonuses: { resourceMultiplier: 1.0 }
 }
 },
 ui: {
-activeTab: ‘crafting’,
+activeTab: 'crafting',
 crafting: null,
 craftResults: null,
 advancedCrafting: null,
 craftingLog: [],
 showRarityInfo: null,
 devMode: false,
-activeRestorationRarity: ‘legendary’
+activeRestorationRarity: 'legendary'
 }
 });
 
 // ===== GAME REDUCER =====
 const gameReducer = (state, action) => {
 switch (action.type) {
-case ‘UPDATE_RESOURCES’:
+case 'UPDATE_RESOURCES':
 let totalResourceMultiplier = 1.0;
 Object.values(state.zones).forEach(zone => {
 if (zone.unlocked && zone.bonuses.resourceMultiplier) {
@@ -443,7 +441,6 @@ totalResourceMultiplier *= zone.bonuses.resourceMultiplier;
 }
 });
 
-```
   const zoneBonus = 1 + (state.zones.cinderGrove.restored / 100) * 0.5;
   const companionBonus = 1 + (state.companion.mood / 100) * 0.2;
   const projectBonus = totalResourceMultiplier;
@@ -864,7 +861,6 @@ case 'SET_RESTORATION_RARITY':
 
 default:
   return state;
-```
 
 }
 };
@@ -872,11 +868,11 @@ default:
 // ===== COMPONENTS (Ready for extraction) =====
 const RarityInfo = ({ rarity, onClose }) => {
 const rarityData = {
-common: { name: “Common”, color: “text-gray-300”, description: “Basic materials found frequently”, chance: “65%” },
-uncommon: { name: “Uncommon”, color: “text-green-400”, description: “Refined materials with modest power”, chance: “20%” },
-rare: { name: “Rare”, color: “text-blue-400”, description: “Specialized items and basic tools”, chance: “10%” },
-epic: { name: “Epic”, color: “text-purple-400”, description: “Powerful tools and artifacts”, chance: “4%” },
-legendary: { name: “Legendary”, color: “text-amber-400”, description: “World-changing artifacts of immense power”, chance: “1%” }
+common: { name: "Common", color: "text-gray-300", description: "Basic materials found frequently", chance: "65%" },
+uncommon: { name: "Uncommon", color: "text-green-400", description: "Refined materials with modest power", chance: "20%" },
+rare: { name: "Rare", color: "text-blue-400", description: "Specialized items and basic tools", chance: "10%" },
+epic: { name: "Epic", color: "text-purple-400", description: "Powerful tools and artifacts", chance: "4%" },
+legendary: { name: "Legendary", color: "text-amber-400", description: "World-changing artifacts of immense power", chance: "1%" }
 };
 
 const data = rarityData[rarity];
@@ -898,7 +894,6 @@ className="text-gray-400 hover:text-white text-2xl leading-none"
 </button>
 </div>
 
-```
     <div className="space-y-3">
       <p className="text-gray-300 text-sm">{data.description}</p>
 
@@ -914,7 +909,6 @@ className="text-gray-400 hover:text-white text-2xl leading-none"
     </div>
   </div>
 </div>
-```
 
 );
 };
@@ -924,7 +918,6 @@ const TabButton = ({ id, icon: Icon, label, isActive, onClick, badge }) => (
 onClick={() => onClick(id)}
 className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg font-semibold transition-all relative min-h-[50px] active:scale-95 ${ isActive ? 'bg-orange-500/20 text-orange-400 scale-105' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/30' }`}
 
-```
 <Icon className="w-5 h-5 mb-1" />
 <span className="text-xs leading-tight text-center">{label}</span>
 {badge && (
@@ -932,7 +925,6 @@ className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg font-
     {badge}
   </div>
 )}
-```
 
   </button>
 );
@@ -947,19 +939,18 @@ Object.values(state.inventory).reduce((sum, count) => sum + (count > 0 ? 1 : 0),
 , [state.inventory]);
 
 const resourceMaterials = useMemo(() => [
-{ key: ‘emberShard’, name: ‘Ember Shards’, icon: Flame, color: ‘orange’ },
-{ key: ‘whisperingVine’, name: ‘Whispering Vines’, icon: Leaf, color: ‘green’ },
-{ key: ‘dustleaf’, name: ‘Dustleaf’, icon: Leaf, color: ‘yellow’ },
-{ key: ‘ancientAlloy’, name: ‘Ancient Alloy’, icon: Zap, color: ‘gray’ }
+{ key: 'emberShard', name: 'Ember Shards', icon: Flame, color: 'orange' },
+{ key: 'whisperingVine', name: 'Whispering Vines', icon: Leaf, color: 'green' },
+{ key: 'dustleaf', name: 'Dustleaf', icon: Leaf, color: 'yellow' },
+{ key: 'ancientAlloy', name: 'Ancient Alloy', icon: Zap, color: 'gray' }
 ], []);
 
 // Game Timers
 useEffect(() => {
 const resourceTimer = setInterval(() => {
-dispatch({ type: ‘UPDATE_RESOURCES’ });
+dispatch({ type: 'UPDATE_RESOURCES' });
 }, GAME_CONFIG.timers.resourceTick);
 
-```
 const moodTimer = setInterval(() => {
   dispatch({ type: 'DECAY_MOOD' });
 }, GAME_CONFIG.timers.moodDecay);
@@ -973,7 +964,6 @@ return () => {
   clearInterval(moodTimer);
   clearInterval(petTimer);
 };
-```
 
 }, []);
 
@@ -981,7 +971,6 @@ return () => {
 useEffect(() => {
 if (!state.ui.crafting) return;
 
-```
 const progressTimer = setInterval(() => {
   dispatch({ type: 'UPDATE_CRAFT_PROGRESS' });
   const elapsed = Date.now() - state.ui.crafting.startTime;
@@ -992,7 +981,6 @@ const progressTimer = setInterval(() => {
 }, 16);
 
 return () => clearInterval(progressTimer);
-```
 
 }, [state.ui.crafting]);
 
@@ -1000,7 +988,6 @@ return () => clearInterval(progressTimer);
 useEffect(() => {
 if (!state.ui.advancedCrafting) return;
 
-```
 const progressTimer = setInterval(() => {
   dispatch({ type: 'UPDATE_ADVANCED_CRAFT_PROGRESS' });
   const elapsed = Date.now() - state.ui.advancedCrafting.startTime;
@@ -1011,64 +998,63 @@ const progressTimer = setInterval(() => {
 }, 16);
 
 return () => clearInterval(progressTimer);
-```
 
 }, [state.ui.advancedCrafting]);
 
 // Optimized action handlers with proper dependencies
 const startCraft = useCallback((recipeKey, quantity) => {
 if (state.ui.crafting || !canCraft(state.resources, recipeKey, quantity)) return;
-dispatch({ type: ‘START_CRAFT’, payload: { recipeKey, quantity } });
+dispatch({ type: 'START_CRAFT', payload: { recipeKey, quantity } });
 }, [state.ui.crafting, state.resources]);
 
 const startAdvancedCraft = useCallback((recipeKey) => {
 if (state.ui.advancedCrafting || !canCraftAdvanced(state.inventory, recipeKey)) return;
-dispatch({ type: ‘START_ADVANCED_CRAFT’, payload: { recipeKey } });
+dispatch({ type: 'START_ADVANCED_CRAFT', payload: { recipeKey } });
 }, [state.ui.advancedCrafting, state.inventory]);
 
 const buildProject = useCallback((zoneKey, projectKey) => {
 if (!canBuildProject(state.inventory, projectKey)) return;
-dispatch({ type: ‘BUILD_PROJECT’, payload: { zoneKey, projectKey } });
+dispatch({ type: 'BUILD_PROJECT', payload: { zoneKey, projectKey } });
 }, [state.inventory]);
 
 const petCompanion = useCallback(() => {
-dispatch({ type: ‘PET_COMPANION’ });
+dispatch({ type: 'PET_COMPANION' });
 }, []);
 
 const restoreZone = useCallback((zoneKey, itemKey) => {
-dispatch({ type: ‘RESTORE_ZONE’, payload: { zoneKey, itemKey } });
+dispatch({ type: 'RESTORE_ZONE', payload: { zoneKey, itemKey } });
 }, []);
 
 const setTab = useCallback((tab) => {
-dispatch({ type: ‘SET_TAB’, payload: tab });
+dispatch({ type: 'SET_TAB', payload: tab });
 }, []);
 
 const clearResults = useCallback(() => {
-dispatch({ type: ‘CLEAR_CRAFT_RESULTS’ });
+dispatch({ type: 'CLEAR_CRAFT_RESULTS' });
 }, []);
 
 const toggleRarityInfo = useCallback((rarity) => {
-dispatch({ type: ‘TOGGLE_RARITY_INFO’, payload: rarity });
+dispatch({ type: 'TOGGLE_RARITY_INFO', payload: rarity });
 }, []);
 
 const toggleDevMode = useCallback(() => {
-dispatch({ type: ‘TOGGLE_DEV_MODE’ });
+dispatch({ type: 'TOGGLE_DEV_MODE' });
 }, []);
 
 const devAddItem = useCallback((itemKey, amount = 1) => {
-dispatch({ type: ‘DEV_ADD_ITEM’, payload: { itemKey, amount } });
+dispatch({ type: 'DEV_ADD_ITEM', payload: { itemKey, amount } });
 }, []);
 
 const devSetResource = useCallback((resource, value) => {
-dispatch({ type: ‘DEV_SET_RESOURCE’, payload: { resource, value } });
+dispatch({ type: 'DEV_SET_RESOURCE', payload: { resource, value } });
 }, []);
 
 const devClearInventory = useCallback(() => {
-dispatch({ type: ‘DEV_CLEAR_INVENTORY’ });
+dispatch({ type: 'DEV_CLEAR_INVENTORY' });
 }, []);
 
 const setRestorationRarity = useCallback((rarity) => {
-dispatch({ type: ‘SET_RESTORATION_RARITY’, payload: rarity });
+dispatch({ type: 'SET_RESTORATION_RARITY', payload: rarity });
 }, []);
 
 return (
@@ -1090,7 +1076,6 @@ className="text-xs px-2 py-1 bg-gray-800/50 rounded border border-gray-600 hover
 <p className="text-gray-300 text-sm opacity-90">Restore the world through ancient crafting</p>
 </div>
 
-```
     {/* Player Stats */}
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
       <div className="bg-gradient-to-br from-black/40 to-black/20 rounded-lg p-4 backdrop-blur-sm border border-white/10 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
@@ -1868,7 +1853,6 @@ className="text-xs px-2 py-1 bg-gray-800/50 rounded border border-gray-600 hover
     />
   )}
 </div>
-```
 
 );
 };
